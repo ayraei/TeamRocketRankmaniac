@@ -1,42 +1,56 @@
 #!/usr/bin/env python
 
+'''
+pagerank_map.py
+    input: ((position=nodeId, iter_num), (distr_vector_col, col_of_adj_matrix))
+    # do the matrix multiplication
+    output: ((position=nodeId, iter_num), (col_val_in_new_st, col_of_adj_matrix))
+
+process_map.py
+    input: ((position=nodeId, iter_num), (col_val_in_new_st, col_of_adj_matrix))
+    # reassemble the distribution vector and adjacency matrix(vertically instead)
+    output: ((position=nodeId, iter_num), (distr_vector_col, col_of_adj_matrix))
+'''
+
 import sys
 from matrix_mod import *
 
 
-#
-# This program simply returns r1 given an adj list file
+
+# This program does things.
 #
 
-adj = []
-
+adjCol = []
+distrVector = []
+firstIteration = False
+finalIteration = False
+printFlag = False
+iterNum = 0
 for line in sys.stdin:
-    # input should be a file with specified adj list format
-    adj.append(line)
- 
-P = get_P(adj) # get the transition matrix
+    if 'NodeId' in line:
+        firstIteration = True
+        sys.stdout.write(line)
+    elif 'FinalRank' in line:
+        printFlag = True
+        sys.stdout.write(line)
+    else:
+        nodeId,iterNum = line.split()[0].split(';')
+        nodeId, iterNum = int(nodeId), int(iterNum)
+        colVal,adjCol = line.split()[1].split(';')
+        if len(distrVector) == 0:
+            distrVector = [0] * len(adjCol.split(', '))
+            colAdjList = [0] * len(adjCol.split(', '))
+        distrVector[nodeId] = [float(x) for x in colVal[1:-1].split(', ')]
+        colAdjList[nodeId] = [float(x) for x in adjCol[1:-1].split(', ')]
 
-n = len(adj) # get dimensions of r1
+if firstIteration:
+    pass
+elif printFlag:
+    pass
+else:
+    colVal = 0.0
+   
+    for num in range(len(distrVector)):
+        colVal += (distrVector[num] * adjCol[num])
+        sys.stdout.write('%d;%d\t%f;%s' % (num, iterNum, colVal, adjCol))
 
-r0 = [1.0/n] * n # intialize r0 to 1/n
-
-r1 = mult_mat(r0,P)
-sys.stdout.write(str(r1)) 
-
-### Can modify this file further to take in r1 to make
-### this function recursive or something
-
-### Here is some psuedocode for planning out map.
-### For our transitional matrix, i guess the best way of using our map func
-### would be to map the matrix multiplcation step, (at least that was the)
-### (only thing i could think of to break up.)
-### We could pass into map a key and a tuple of lists. the key is the index
-### corresponding to our new r vector and the tuple could have the current r
-### as a list and the second argument would be the relavent column from the P 
-### matrix. The map would return the key and the value at the index for r(i+1)
-
-### The reduce will then collect this list of values and keys and put them
-### in order based on index to return our new r vector.
-
-### we interatively call map-reduce and our current r value 50 times to get
-### page rank.
