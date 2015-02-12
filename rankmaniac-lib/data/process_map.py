@@ -37,23 +37,43 @@ adjList = []
 colAdjList = []
 distrVector = []
 firstIteration = False
+finalIteration = False
+printFlag = False
 for line in sys.stdin:
     # Compute the transition matrix only on the first MapReduce iteration
     if 'NodeId' in line:
         firstIteration = True
         adjList.append(line)
+    elif 'FinalRank' in line:
+        printFlag = True
+        sys.stdout.write(line)
     else:
         nodeId,iterNum = line.split()[0].split(';')
+        nodeId, iterNum = int(nodeId), int(iterNum)
+        if iterNum >= 49:
+            finalIteration = True
         colVal,adjCol = line.split()[1].split(';')
         if len(distrVector) == 0:
-            distrVector = [0] * len(adjCol.split(','))
-            colAdjList = [0] * len(adjCol.split(','))
-        distrVector[nodeId] = colVal
-        colAdjList[nodeId] = adjCol
+            distrVector = [0] * len(adjCol.split(', '))
+            colAdjList = [0] * len(adjCol.split(', '))
+        distrVector[nodeId] = [float(x) for x in colVal[1:-1].split(', ')]
+        colAdjList[nodeId] = [float(x) for x in adjCol[1:-1].split(', ')]
 
 if firstIteration:
     trans = get_P(adjList)
-    for i in range(len(trans)):
-        sys.stdout.write(i)
-else:
+    n = len(trans)
+    for i in range(n):
+        col = []
+        # build the transition matrix by column
+        for row in trans:
+            col.append(row[i])
+        distrVector = [1.0/n] * n
+        sys.stdout.write('%d;%d\t%s;%s' % (i, 1, distrVector, col))
+elif finalIteration:
+    for i in range(min(len(distrVector)), 20):
+        sys.stdout.write('FinalRank:%f\t%d' % (distrVector[i], i))
+elif printFlag:
     pass
+else:
+    for i in range(len(colAdjList)):
+        sys.stdout.write('%d;%d\t%s;%s' % (i, iterNum+1, distrVector, colAdjList[i]))
