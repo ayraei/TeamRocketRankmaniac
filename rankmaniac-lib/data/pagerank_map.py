@@ -13,12 +13,7 @@ process_map.py
 '''
 
 import sys
-from matrix_mod import *
-
-
-
-# This program does things.
-#
+#from matrix_mod import *
 
 adjCol = []
 distrVector = []
@@ -34,14 +29,15 @@ for line in sys.stdin:
         printFlag = True
         sys.stdout.write(line)
     else:
-        nodeId,iterNum = line.split()[0].split(';')
+        nodeId,iterNum = line.split('\t')[0].split(';')
         nodeId, iterNum = int(nodeId), int(iterNum)
-        colVal,adjCol = line.split()[1].split(';')
+        colVal,adjCol = line.split('\t')[1].split(';')
         if len(distrVector) == 0:
             distrVector = [0] * len(adjCol.split(', '))
             colAdjList = [0] * len(adjCol.split(', '))
-        distrVector[nodeId] = [float(x) for x in colVal[1:-1].split(', ')]
-        colAdjList[nodeId] = [float(x) for x in adjCol[1:-1].split(', ')]
+        distrVector = [float(x.strip()) for x in colVal[1:-1].split(', ')]
+        #colAdjList[nodeId] = [float(x.strip()) for x in adjCol[1:-2].split(', ')]
+        adjCol = [float(x.strip()) for x in adjCol[1:-2].split(', ')]
 
 if firstIteration:
     pass
@@ -52,5 +48,5 @@ else:
    
     for num in range(len(distrVector)):
         colVal += (distrVector[num] * adjCol[num])
-        sys.stdout.write('%d;%d\t%f;%s' % (num, iterNum, colVal, adjCol))
+        sys.stdout.write('%d;%d\t%f;%s\n' % (num, iterNum, colVal, adjCol))
 
