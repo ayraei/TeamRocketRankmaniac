@@ -49,7 +49,7 @@ for line in sys.stdin:
         nodeId,iterNum = line.split('\t')[0].split(';')
         nodeId, iterNum = int(nodeId), int(iterNum)
         # Begin the final iteration
-        if iterNum >= 49:
+        if iterNum >= 2:
             finalIteration = True
         colVal,adjCol = line.split('\t')[1].split(';')
         if len(distrVector) == 0:
@@ -69,7 +69,7 @@ if firstIteration:
         distrVector = [1.0/n] * n
         sys.stdout.write('%d;%d\t%s;%s\n' % (i, 1, distrVector, col))
 elif finalIteration:
-    for i in range(min(len(distrVector)), 20):
+    for i in range(min(len(distrVector), 20)):
         sys.stdout.write('FinalRank:%f\t%d\n' % (distrVector[i], i))
 elif printFlag:
     pass
