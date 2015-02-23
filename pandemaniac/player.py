@@ -11,13 +11,13 @@ print to the standard output the 10 nodes that should be used. Different
 strategies will be written in as different functions and flags can be given when
 calling the script to specify which strategy to generate seed nodes for.
 
-USAGE:  >>  python player.py graphs.txt 
+USAGE:  >>  python player.py graphs.txt 1
  prints out the top ten nodes
 
 '''
 import sys
 import json
-
+import random
 def get_degree_list(adj):
     ''' Helper function that returns a list of degrees based on the adj list.
     The output is a list of degree size with the index corresponding to the 
@@ -70,7 +70,7 @@ def basic_strategy_1(adj):
     
     top = get_top_list(get_degree_list(adj))
     
-    return top[:NUM_SEEDS] * NUM_GAMES
+    return top[:NUM_SEEDS]
 
 def basic_strategy_2(adj):
     ''' Basic strategy example for pandemaniac. Other functions should follow
@@ -105,7 +105,50 @@ def basic_strategy_2(adj):
         # Add the highest neighbor to the seeds list
         seeds.append(max_key)
     
-    return seeds * NUM_GAMES
+    return seeds
+
+def cluster_lists(adj, num_groups):
+    ''' Function that takes in the adjacency list and divides the nodes into 
+    num_groups different cluster groups. 
+    
+    input is adj list from json file, num_groups an integer.
+    
+    output is a list of lists. Each inner list is a cluster of nodes.
+    
+    '''
+    
+    # Add all of the nodes to a list of unclaimed nodes
+    unused = []
+    for key in adj:
+        unused.append(int(key))
+   
+    # Then we randomly select Num_seed nodes as starting points for our cluster
+    
+    clusters = [[]] * NUM_SEEDS
+    
+    for i in range(len(clusters)):
+        rand_node = random.choice(unused)
+        clusters[i].append(rand_node)
+        unused.remove(rand_node)
+        
+    
+    # Expand from our starting nodes, each iteration add all neighbors of a 
+    # cluster to the cluster until all nodes are matched
+    groups_to_search = range(len(clusters))
+    while len(unused) != 0:
+        
+        for index in groups_to_search:
+            new_nodes = []
+            for node in clusters[index]:
+                for neighbor in adj[str(node)]:
+                    if int(neighbor) in unused:
+                        new_nodes.append(int(neighbor))
+                        unused.remove(int(neighbor))
+            clusters[index] += new_nodes
+            if new_nodes == []:
+                groups_to_search.remove(index)
+        
+    return clusters
 
 def go_for_top_3(adj):
     ''' Strategy where the pandemic will aim for the top three degree nodes.
@@ -148,21 +191,22 @@ def go_for_top_3(adj):
         plan.append(maxIndex)           
     
     
-    return plan[:NUM_SEEDS] * NUM_GAMES
+    return plan[:NUM_SEEDS]
 
 
 # Python Script
 
 # set the strategy to use
+VALID_STARTEGIES = []
 STRATEGY = 1
-NUM_GAMES = 1 # number of games we select nodes for
+NUM_GAMES = 2 # number of games we select nodes for
 NUM_SEEDS = 10 # number of seeds needed for each game
 
 json_file = sys.argv[1]
 
 # if a second argument is given use that strategy
 if len(sys.argv) > 2:
-    STRATEGY = sys.argv[2]
+    STRATEGY = int(sys.argv[2])
 
 # open the file and create an adj list
 data = []
@@ -171,18 +215,29 @@ with open(json_file) as f:
         data.append(json.loads(line))
         
 seed = []
+STRATEGY_LIST = []
+# Pick which strategy to use, ADD TO HERE ONLY IF THEY HAVE BEEN TESTED
+# OTHERWISE WILL BE REPLACED WITH 1-10 (TODO)
 
-# Pick which strategy to use
+if STRATEGY >= 1:
+    STRATEGY_LIST.append(basic_strategy_2(data[0]))
 
-if STRATEGY == 1:
-    seed = basic_strategy_2(data[0])
-
-elif STRATEGY == 2:
+if STRATEGY >= 2:
     pass
 
-else:
-    seed = basic_strategy_1(data[0])
+if STRATEGY >= 3:
+    pass
 
+STRATEGY_LIST.append(basic_strategy_1(data[0]))
+
+
+seed = []
+count = 0
+i = 0
+
+for game_num in range(NUM_GAMES):
+    seed += STRATEGY_LIST[i]
+    i = (i + 1) % len(STRATEGY_LIST)    
         
 for node in seed:
     print node
