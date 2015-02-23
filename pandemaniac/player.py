@@ -15,6 +15,7 @@ USAGE:  >>  python player.py graphs.txt
  prints out the top ten nodes
 
 '''
+
 import sys
 import json
 
@@ -44,7 +45,7 @@ def get_top_list(deg_list):
     
     Input is a list of the degrees based on index, see get_degree_list
 
-    Output is a list with nodes indecies in order of degree size
+    Output is a list with nodes indices in order of degree size
     '''
     top_deg = []
     
@@ -60,7 +61,7 @@ def get_top_list(deg_list):
     return top_deg
 
 def basic_strategy_1(adj):
-    ''' Basic strategy example for pandemaniac. Other functions should follow
+    ''' Basic strategy example for Pandemaniac. Other functions should follow
     this format. Basic strategy 1 simply returns the top 10 nodes with highest
     degree based on the graph.
     
@@ -70,7 +71,7 @@ def basic_strategy_1(adj):
     
     top = get_top_list(get_degree_list(adj))
     
-    return top[:NUM_SEEDS] * NUM_GAMES
+    return top[:NUM_SEEDS] * NUM_ITERS
 
 def basic_strategy_2(adj):
     ''' Basic strategy example for pandemaniac. Other functions should follow
@@ -86,7 +87,7 @@ def basic_strategy_2(adj):
     
     top = get_top_list(deg_list)
     
-    seeds = top[:NUM_SEEDS / 2]
+    seeds = top[:(NUM_SEEDS+1) / 2]
     
     # get the highest degree neighbor for each top seed.
     for i in range(5):
@@ -105,16 +106,16 @@ def basic_strategy_2(adj):
         # Add the highest neighbor to the seeds list
         seeds.append(max_key)
     
-    return seeds * NUM_GAMES
+    return seeds[:NUM_SEEDS] * NUM_ITERS
 
 def go_for_top_3(adj):
     ''' Strategy where the pandemic will aim for the top three degree nodes.
     Assuming the competion will cancel out the top nodes, this strategy aims to
-    secure the highest degree node by surrounding it with out seeds.
+    secure the highest degree node by surrounding it with our seeds.
     
     Goes for the top 3 nodes by picking the four highest degree neighbors for
     the top node, and the three highest degree neighbors for the 2nd and 3rd 
-    hightest nodes.
+    highest nodes.
     
     STILL WORK IN PROGRESS
     '''
@@ -147,16 +148,15 @@ def go_for_top_3(adj):
                 maxIndex = node
         plan.append(maxIndex)           
     
-    
-    return plan[:NUM_SEEDS] * NUM_GAMES
+    return plan[:NUM_SEEDS] * NUM_ITERS
 
 
 # Python Script
 
 # set the strategy to use
 STRATEGY = 1
-NUM_GAMES = 1 # number of games we select nodes for
-NUM_SEEDS = 10 # number of seeds needed for each game
+NUM_ITERS = 50 # number of games we select nodes for
+NUM_SEEDS = 5 # number of seeds needed for each game
 
 json_file = sys.argv[1]
 
@@ -183,8 +183,5 @@ elif STRATEGY == 2:
 else:
     seed = basic_strategy_1(data[0])
 
-        
 for node in seed:
     print node
-
-    
