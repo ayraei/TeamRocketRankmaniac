@@ -16,16 +16,17 @@ def get_P(adjList):
     """
     P = []
     n = len(adjList)
+    alpha = 0.85
     
     # get row for each node in the graph
     for node in adjList:
         
-        row = [0] * n
+        row = [float((1-alpha)/n)] * n
         # get list of other nodes it connects to
         edges = node.split("\t")[1].split(",")[2:]
         # update values in row to be 1/n if node is connected
         for edg in edges:
-            row[int(edg)] = (1.0 / len(edges))
+            row[int(edg)] += (alpha / len(edges))
         P.append(row)
     return P
 
@@ -49,7 +50,7 @@ for line in sys.stdin:
         nodeId,iterNum = line.split('\t')[0].split(';')
         nodeId, iterNum = int(nodeId), int(iterNum)
         # Begin the final iteration
-        if iterNum >= 2:
+        if iterNum >= 49:
             finalIteration = True
         colVal,adjCol = line.split('\t')[1].split(';')
         if len(distrVector) == 0:

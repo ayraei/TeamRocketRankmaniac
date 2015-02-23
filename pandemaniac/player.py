@@ -15,6 +15,7 @@ USAGE:  >>  python player.py graphs.txt 1
  prints out the top ten nodes
 
 '''
+
 import sys
 import json
 import random
@@ -39,16 +40,17 @@ def get_degree_list(adj):
     return degree
     
     
-def get_top_list(deg_list):
+def get_top_list(deg_list, num):
     ''' Helper function that returns a list of the highest degree nodes.
     
     Input is a list of the degrees based on index, see get_degree_list
+      second input is the number of nodes to find
 
-    Output is a list with nodes indecies in order of degree size
+    Output is a list with nodes indices in order of degree size
     '''
     top_deg = []
     
-    for i in range(len(deg_list)):
+    for i in range(num):
         max_D = 0
         max_Index = 0
         for i in range(len(deg_list)):
@@ -60,7 +62,7 @@ def get_top_list(deg_list):
     return top_deg
 
 def basic_strategy_1(adj):
-    ''' Basic strategy example for pandemaniac. Other functions should follow
+    ''' Basic strategy example for Pandemaniac. Other functions should follow
     this format. Basic strategy 1 simply returns the top 10 nodes with highest
     degree based on the graph.
     
@@ -68,9 +70,11 @@ def basic_strategy_1(adj):
     
     Output is a list of 10 nodes to use as the seed nodes.'''
     
-    top = get_top_list(get_degree_list(adj))
+    top = get_top_list(get_degree_list(adj), NUM_SEEDS)
     
+
     return top[:NUM_SEEDS]
+
 
 def basic_strategy_2(adj):
     ''' Basic strategy example for pandemaniac. Other functions should follow
@@ -84,9 +88,9 @@ def basic_strategy_2(adj):
     
     deg_list = (get_degree_list(adj))
     
-    top = get_top_list(deg_list)
+    top = get_top_list(deg_list, NUM_SEEDS)
     
-    seeds = top[:NUM_SEEDS / 2]
+    seeds = top[:(NUM_SEEDS+1) / 2]
     
     # get the highest degree neighbor for each top seed.
     for i in range(5):
@@ -105,7 +109,7 @@ def basic_strategy_2(adj):
         # Add the highest neighbor to the seeds list
         seeds.append(max_key)
     
-    return seeds
+    return seeds[:NUM_SEEDS] 
 
 def cluster_lists(adj, num_groups):
     ''' Function that takes in the adjacency list and divides the nodes into 
@@ -150,14 +154,15 @@ def cluster_lists(adj, num_groups):
         
     return clusters
 
+
 def go_for_top_3(adj):
     ''' Strategy where the pandemic will aim for the top three degree nodes.
     Assuming the competion will cancel out the top nodes, this strategy aims to
-    secure the highest degree node by surrounding it with out seeds.
+    secure the highest degree node by surrounding it with our seeds.
     
     Goes for the top 3 nodes by picking the four highest degree neighbors for
     the top node, and the three highest degree neighbors for the 2nd and 3rd 
-    hightest nodes.
+    highest nodes.
     
     STILL WORK IN PROGRESS
     '''
@@ -190,8 +195,7 @@ def go_for_top_3(adj):
                 maxIndex = node
         plan.append(maxIndex)           
     
-    
-    return plan[:NUM_SEEDS]
+    return plan[:NUM_SEEDS] 
 
 
 # Python Script
@@ -199,8 +203,10 @@ def go_for_top_3(adj):
 # set the strategy to use
 VALID_STARTEGIES = []
 STRATEGY = 1
+
 NUM_GAMES = 2 # number of games we select nodes for
 NUM_SEEDS = 10 # number of seeds needed for each game
+
 
 json_file = sys.argv[1]
 
@@ -235,11 +241,10 @@ seed = []
 count = 0
 i = 0
 
+
 for game_num in range(NUM_GAMES):
     seed += STRATEGY_LIST[i]
     i = (i + 1) % len(STRATEGY_LIST)    
         
 for node in seed:
     print node
-
-    
