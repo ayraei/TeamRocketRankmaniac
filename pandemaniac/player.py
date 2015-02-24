@@ -20,6 +20,7 @@ import sys
 import json
 import random
 import centrality
+from supercluster import supercluster2
 
 def get_degree_list(adj):
     ''' Helper function that returns a list of degrees based on the adj list.
@@ -249,6 +250,8 @@ if STRATEGY == 3:
 if STRATEGY == 0:
     STRATEGY_LIST.append(basic_strategy_1(data[0]))
 
+if STRATEGY == 4:
+    STRATEGY_LIST.append(supercluster2(data[0], get_top_list(get_degree_list(data[0]),NUM_SEEDS+1)))
 
 seed = []
 count = 0
