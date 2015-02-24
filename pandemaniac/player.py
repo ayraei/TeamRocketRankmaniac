@@ -19,6 +19,8 @@ USAGE:  >>  python player.py graphs.txt 1
 import sys
 import json
 import random
+import centrality
+
 def get_degree_list(adj):
     ''' Helper function that returns a list of degrees based on the adj list.
     The output is a list of degree size with the index corresponding to the 
@@ -139,6 +141,9 @@ def cluster_lists(adj, num_groups):
     # Expand from our starting nodes, each iteration add all neighbors of a 
     # cluster to the cluster until all nodes are matched
     groups_to_search = range(len(clusters))
+    
+    un
+    
     while len(unused) != 0:
         
         for index in groups_to_search:
@@ -153,7 +158,6 @@ def cluster_lists(adj, num_groups):
                 groups_to_search.remove(index)
         
     return clusters
-
 
 def go_for_top_3(adj):
     ''' Strategy where the pandemic will aim for the top three degree nodes.
@@ -204,7 +208,7 @@ def go_for_top_3(adj):
 VALID_STARTEGIES = []
 STRATEGY = 1
 
-NUM_GAMES = 2 # number of games we select nodes for
+NUM_GAMES = 1 # number of games we select nodes for
 NUM_SEEDS = 10 # number of seeds needed for each game
 
 
@@ -213,6 +217,14 @@ json_file = sys.argv[1]
 # if a second argument is given use that strategy
 if len(sys.argv) > 2:
     STRATEGY = int(sys.argv[2])
+    
+# if a third argument is provided use that for NUM_SEEDS
+if len(sys.argv) > 3:
+    NUM_SEEDS = int(sys.argv[3])    
+
+# if a fourth argument is provided use that for NUM_GAMES
+if len(sys.argv) > 4:
+    NUM_GAMES = int(sys.argv[4])  
 
 # open the file and create an adj list
 data = []
@@ -225,16 +237,17 @@ STRATEGY_LIST = []
 # Pick which strategy to use, ADD TO HERE ONLY IF THEY HAVE BEEN TESTED
 # OTHERWISE WILL BE REPLACED WITH 1-10 (TODO)
 
-if STRATEGY >= 1:
+if STRATEGY == 1:
     STRATEGY_LIST.append(basic_strategy_2(data[0]))
 
-if STRATEGY >= 2:
-    pass
+if STRATEGY == 2:
+    STRATEGY_LIST.append(centrality.go_for_centrality(data[0], NUM_SEEDS, 0))
 
-if STRATEGY >= 3:
-    pass
+if STRATEGY == 3:
+    STRATEGY_LIST.append(centrality.betweenness(data[0], NUM_SEEDS))
 
-STRATEGY_LIST.append(basic_strategy_1(data[0]))
+if STRATEGY == 0:
+    STRATEGY_LIST.append(basic_strategy_1(data[0]))
 
 
 seed = []
